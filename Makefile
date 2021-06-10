@@ -23,11 +23,14 @@ install:
 	fi
 
 	@$(call message, Install python packages)
+	@"$(root)/.venv/bin/pip" install -U wheel
 	@"$(root)/.venv/bin/pip" install -U -r "$(root)/requirements.txt"
 	@echo ""
 
 .PHONY: check
 check:
+	@"$(root)/.venv/bin/python" "$(root)/src/main.py" check
 
 .PHONY: run
-play:
+run:
+	@"$(root)/.venv/bin/python" "$(root)/src/main.py" run
