@@ -1,0 +1,10 @@
+{
+  "exclude": [".venv"],
+  "venv": ".venv",
+  "venvPath": ".",
+  "executionEnvironments": [
+    {
+      "root": "./src/"
+    }
+  ]
+}
