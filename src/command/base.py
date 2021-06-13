@@ -5,7 +5,6 @@ from package import Package
 
 class Command(object):
     """Package manager commands."""
-
     @staticmethod
     async def check():
         print('Check')

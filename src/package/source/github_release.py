@@ -1,5 +1,4 @@
 import re
-
 from typing import Any, Dict, List, Optional
 
 from utils.configs import GITHUB_TOKEN

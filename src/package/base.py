@@ -1,7 +1,6 @@
 from typing import Optional
 
-from package.source import PackageSource
-from package.source import github_release
+from package.source import PackageSource, github_release
 
 
 class Package(object):
