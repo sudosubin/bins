@@ -1,15 +1,18 @@
 import importlib
 import os
 
+from aiopath import AsyncPath
+
 from utils.configs import PROJECT_DIR
 
 
-def load_collection():
+async def load_collection():
     """Preload all collection classes."""
 
-    for name in os.listdir(os.path.join(PROJECT_DIR, 'collection')):
-        if not name.endswith('.py'):
+    collection = AsyncPath(os.path.join(PROJECT_DIR, 'collection'))
+
+    async for path in collection.iterdir():
+        if path.suffix != '.py':
             continue
 
-        module = name.replace('.py', '')
-        importlib.import_module(f'collection.{module}')
+        importlib.import_module(f'collection.{path.stem}')

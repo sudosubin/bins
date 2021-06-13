@@ -12,10 +12,10 @@ define message
 endef
 
 .PHONY: bootstrap
-bootstrap: install check run
+bootstrap: prepare check install
 
-.PHONY: install
-install:
+.PHONY: prepare
+prepare:
 	@if [ ! -d "$(root)/.venv" ]; then \
 		$(call message, Create Virtualenv); \
 		/usr/bin/python3 -m venv "$(root)/.venv"; \
@@ -31,6 +31,6 @@ install:
 check:
 	@"$(root)/.venv/bin/python" "$(root)/src/main.py" check
 
-.PHONY: run
-run:
-	@"$(root)/.venv/bin/python" "$(root)/src/main.py" run
+.PHONY: install
+install:
+	@"$(root)/.venv/bin/python" "$(root)/src/main.py" install

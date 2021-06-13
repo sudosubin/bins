@@ -1,11 +1,16 @@
-import fire
+import asyncio
 
 from command import Command
 from package.load import load_collection
 
 
-if __name__ == '__main__':
+async def main():
     # preload collection
-    load_collection()
+    await load_collection()
 
-    fire.Fire(Command)
+    # run command
+    await Command.run()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

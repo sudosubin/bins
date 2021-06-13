@@ -1,5 +1,6 @@
-# command-line
-fire
+# async
+aiohttp
+aiopath
 
 # dev
 flake8

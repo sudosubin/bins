@@ -1,1 +1,1 @@
-from command.command import Command  # noqa: F401
+from command.base import Command  # noqa: F401
