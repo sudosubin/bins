@@ -6,8 +6,8 @@ from aiopath import AsyncPath
 from utils.configs import PROJECT_DIR
 
 
-async def load_collection():
-    """Preload all collection classes."""
+async def load_packages():
+    """Preload all package classes."""
 
     collection = AsyncPath(os.path.join(PROJECT_DIR, 'collection'))
 
