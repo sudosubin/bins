@@ -1,6 +1,11 @@
 import os
+from typing import Optional
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-PROJECT_DIR = os.path.join(ROOT_DIR, 'src')
+ROOT_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', None)
+PROJECT_DIR: str = os.path.join(ROOT_DIR, 'src')
+COLLECTION_DIR: str = os.path.join(PROJECT_DIR, 'collection')
+
+INSTALL_DIR: str = os.path.join(ROOT_DIR, 'installs')
+
+GITHUB_TOKEN: Optional[str] = os.environ.get('GITHUB_TOKEN')

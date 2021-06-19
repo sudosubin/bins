@@ -1,11 +1,15 @@
 import json
 import os
 from collections import OrderedDict
+from typing import Any, Literal, Optional
+from typing import OrderedDict as _OrderedDict
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
 
 from utils.configs import INSTALL_DIR
+
+_PackageLockKey = Literal['name', 'version']
 
 
 class PackageLock(object):
@@ -17,7 +21,7 @@ class PackageLock(object):
     """
 
     package_name: str
-    lock_content: OrderedDict
+    lock_content: Optional[_OrderedDict[_PackageLockKey, Any]] = None
 
     def __init__(self, name: str):
         self.package_name = name
@@ -26,7 +30,7 @@ class PackageLock(object):
     def lock_file(self):
         return AsyncPath(os.path.join(INSTALL_DIR, self.package_name, 'lock.json'))
 
-    async def read(self) -> OrderedDict:
+    async def read(self):
         """Read lock file's content"""
 
         if self.lock_content is not None:
@@ -50,8 +54,8 @@ class PackageLock(object):
     async def write(self, **kwargs):
         """Write lock content to lock file"""
 
-        raw_content = {**self.lock_content, **kwargs}
-        self.lock_content = OrderedDict(sorted(raw_content.items(), key=lambda item: item[0]))
+        raw_content = {**(self.lock_content or {}), **kwargs}
+        self.lock_content = OrderedDict(sorted(raw_content.items(), key=lambda item: item[0]))  # type: ignore
 
         async with await self.lock_file.open(mode='w') as file:
             file: AsyncFile

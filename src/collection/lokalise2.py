@@ -1,6 +1,7 @@
 import sys
 
-from package import Package, PackageSource
+from package import Package
+from package.source import PackageSource
 from utils import hardware
 
 
