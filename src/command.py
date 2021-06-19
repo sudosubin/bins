@@ -6,6 +6,7 @@ import rich
 from package import Package
 from package.load import load_packages_removal
 from package.status import PackageStatus
+from prompt import message
 
 
 class Command(object):
@@ -21,7 +22,7 @@ class Command(object):
     async def init(cls):
         """Common jobs for check, install packages"""
 
-        rich.print('[blue]Collecting packages\n')
+        message.print_package_collecting()
 
         # Instantiate packages
         cls.packages = [package() for package in await Package.collection()]
@@ -32,10 +33,7 @@ class Command(object):
         update_count = len(tuple(filter(lambda x: x is PackageStatus.UPDATE, package_statuses)))
         removal_count = len(await load_packages_removal())
 
-        rich.print(f'[bold]Package operations[/bold]: '
-                   f'[not bold blue]{install_count}[/not bold blue] installs, '
-                   f'[not bold blue]{update_count}[/not bold blue] updates, '
-                   f'[not bold blue]{removal_count}[/not bold blue] removals\n')
+        message.print_package_operations(install_count, update_count, removal_count)
 
     @classmethod
     async def check(cls):
