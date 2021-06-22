@@ -1,5 +1,4 @@
 import sys
-from typing import Sequence
 
 from package import Package
 from package.load import load_packages_removal
@@ -13,40 +12,43 @@ class Command(object):
     Attributes:
         packages: Package instances
     """
-
-    packages: Sequence[Package]
-
     @classmethod
-    async def init(cls):
-        """Common jobs for check, install packages"""
+    async def collect_packages(cls):
+        """Collect packages to install, update, or removal"""
 
         with message.print_package_collecting():
             # Instantiate packages
-            cls.packages = [package() for package in await Package.collection()]
+            packages = [package() for package in await Package.collection()]
 
             # Package statuses
-            package_statuses = [await package.status() for package in cls.packages]
+            installs = [p for p in packages if await p.status() is PackageStatus.INSTALL]
+            updates = [p for p in packages if await p.status() is PackageStatus.UPDATE]
+            removals = await load_packages_removal()
 
-            install_count = len(tuple(filter(lambda x: x is PackageStatus.INSTALL, package_statuses)))
-            update_count = len(tuple(filter(lambda x: x is PackageStatus.UPDATE, package_statuses)))
-            removal_count = len(await load_packages_removal())
+        message.print_package_operations(len(installs), len(updates), len(removals))
 
-        message.print_package_operations(install_count, update_count, removal_count)
+        return installs, updates, removals
 
     @classmethod
     async def check(cls):
-        for package in cls.packages:
+        """Check and print packages to install, update, or remove"""
+
+        installs, updates, removals = await cls.collect_packages()
+
+        for package in installs + updates:
             await package.check()
+
+        for package in removals:
+            message.print_package_check(package['name'], package['version'], None)
 
     @classmethod
     async def install(cls):
-        for package in cls.packages:
-            await package.install()
+        """Install, update, or remove packages"""
+
+        installs, updates, removals = await cls.collect_packages()
 
     @classmethod
     async def execute(cls):
-        await cls.init()
-
         if 'check' in sys.argv:
             await cls.check()
 

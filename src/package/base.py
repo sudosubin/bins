@@ -4,6 +4,7 @@ from package.load import load_collection
 from package.lock import PackageLock
 from package.source import PackageSource
 from package.status import PackageStatus
+from prompt import message
 from source.base import BasePackageSource
 
 
@@ -76,8 +77,10 @@ class Package(object):
     async def check(self):
         """Get current installed version, and a version to install"""
 
-        print(await self.planned_version())
-        print(await self.installed_version())
+        prev_version = await self.installed_version()
+        next_version = await self.planned_version()
+
+        message.print_package_check(self.name, prev_version, next_version)
 
     async def install(self):
         pass

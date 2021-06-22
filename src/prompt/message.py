@@ -1,9 +1,12 @@
 import asyncio
 import contextlib
 import datetime
+from typing import Optional
 
 import rich
 from rich.live import Live
+
+from package.status import PackageStatus
 
 
 @contextlib.contextmanager
@@ -34,3 +37,24 @@ def print_package_operations(install_count: int, update_count: int, removal_coun
                f'[not bold blue]{install_count}[/not bold blue] installs, '
                f'[not bold blue]{update_count}[/not bold blue] updates, '
                f'[not bold blue]{removal_count}[/not bold blue] removals\n')
+
+
+def _format_version(version: Optional[str]) -> str:
+    if version is None:
+        return '[not bold yellow]none[/not bold yellow]'
+
+    return f'[not bold default]{version}[/not bold default]'
+
+
+def print_package_check(name: str, prev_version: Optional[str], next_version: Optional[str]):
+    def package_status():
+        if prev_version is None:
+            return PackageStatus.INSTALL.value.lower()
+
+        if next_version is None:
+            return PackageStatus.REMOVAL.value.lower()
+
+        return PackageStatus.UPDATE.value.lower()
+
+    rich.print(f'  [green]•[/green] Planned for {package_status()} [cyan]{name}[/cyan] '
+               f'[not bold]({_format_version(prev_version)} → {_format_version(next_version)})[/not bold]')
