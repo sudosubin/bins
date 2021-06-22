@@ -1,9 +1,5 @@
 import platform
 
+is_x86_64: bool = platform.machine() == 'x86_64'
 
-def is_x86_64() -> bool:
-    return platform.machine() == 'x86_64'
-
-
-def is_i386() -> bool:
-    return platform.machine() != 'x86_64'
+is_i386: bool = platform.machine() != 'x86_64'
