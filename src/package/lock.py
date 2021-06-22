@@ -55,10 +55,12 @@ class PackageLock(object):
         """Write lock content to lock file"""
 
         raw_content = {**(self.lock_content or {}), **kwargs}
-        self.lock_content = OrderedDict(sorted(raw_content.items(), key=lambda item: item[0]))  # type: ignore
+        lock_content = OrderedDict(sorted(raw_content.items(), key=lambda item: item[0]))
 
         async with await self.lock_file.open(mode='w') as file:
             file: AsyncFile
 
-            raw_data = json.dumps(self.lock_content, indent=2).encode()
+            raw_data = json.dumps(lock_content, indent=2).encode()
             await file.write(raw_data)
+
+        self.lock_content = lock_content  # type: ignore
