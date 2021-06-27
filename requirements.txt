@@ -1,5 +1,4 @@
 # async
-aiofiles
 aiohttp
 aiopath
 aioshutil

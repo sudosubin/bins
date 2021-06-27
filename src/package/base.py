@@ -119,7 +119,7 @@ class Package(object):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
-                async with await download_file_path.open(mode='wb+', encoding=None, errors=None, newline=None) as file:
+                async with await download_file_path.open(mode='wb', encoding=None, errors=None, newline=None) as file:
                     file: AsyncFile
                     await file.write(chunks)
 
@@ -140,6 +140,9 @@ class Package(object):
 
             # Clean up
             await download_file_path.unlink()
+
+            # Write lock
+            await self._lock.write(name=self.name, version=next_version, bins=[])
 
             dynamic.update_heading(_get_heading(finish=True))
 
