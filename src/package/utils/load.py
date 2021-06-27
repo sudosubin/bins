@@ -4,7 +4,7 @@ from typing import Dict, List, Literal
 
 from aiopath import AsyncPath
 
-from package.lock import PackageLock
+from lock import PackageLock
 from utils.configs import COLLECTION_DIR, INSTALL_DIR
 
 _PackageRemovalKey = Literal['name', 'version']

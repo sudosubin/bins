@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List
 
 from source.base import BasePackageSource
@@ -11,6 +12,7 @@ class GitHubReleasePackageSource(BasePackageSource):
     def _get_headers() -> Dict[str, str]:
         if GITHUB_TOKEN:
             return {'Authorization': f'token {GITHUB_TOKEN}'}
+
         return {}
 
     async def planned_version(self) -> str:
@@ -30,8 +32,7 @@ class GitHubReleasePackageSource(BasePackageSource):
         data = await request.get(endpoint, headers=self._get_headers())
 
         tag_names: List[str] = [
-            release['tag_name'] for release in data
-            if (release['tag_name'] == self.package.version) or (release['tag_name'] == f'v{self.package.version}')
+            release['tag_name'] for release in data if self.package.version == semantic_release(release['tag_name'])
         ]
 
         if len(tag_names) != 1:
@@ -39,3 +40,15 @@ class GitHubReleasePackageSource(BasePackageSource):
 
         self._planned_version = semantic_release(tag_names[0])
         return self._planned_version
+
+    async def download_url(self) -> str:
+        endpoint = f'https://api.github.com/repos/{self.package.repo}/releases'
+        data = await request.get(endpoint, headers=self._get_headers())
+
+        release = next((release for release in data if self._planned_version == semantic_release(release['tag_name'])))
+        assets = [asset for asset in release['assets'] if re.match(self.package.asset_pattern or '', asset['name'])]
+
+        if len(assets) != 1:
+            raise ValueError(f'Asset for {self.package.name} ({self.package.version}) was not found!')
+
+        return assets[0]['browser_download_url']

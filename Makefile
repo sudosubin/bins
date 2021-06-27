@@ -13,11 +13,11 @@ bootstrap: prepare check install
 .PHONY: prepare
 prepare:
 	@if [ ! -d "$(root)/.venv" ]; then \
-		echo "$$(tput setaf 6)Creating virtualenv$$(tput sgr 0) in $(root)/.venv"; \
+		echo "$$(tput setaf 4)Creating virtualenv$$(tput sgr 0) in $(root)/.venv"; \
 		/usr/bin/python3 -m venv "$(root)/.venv"; \
 	fi
 
-	@echo "$$(tput setaf 6)Installing dependencies$$(tput sgr 0) in $(root)/.venv"
+	@echo "$$(tput setaf 4)Installing dependencies$$(tput sgr 0) in $(root)/.venv"
 	@"$(root)/.venv/bin/pip" install -U -q wheel
 	@"$(root)/.venv/bin/pip" install -U -q -r "$(root)/requirements.txt"
 

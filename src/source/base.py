@@ -22,3 +22,6 @@ class BasePackageSource(object):
 
     async def planned_version(self) -> str:
         raise NotImplementedError
+
+    async def download_url(self) -> str:
+        raise NotImplementedError

@@ -23,9 +23,9 @@ class Request:
 
         return self._session
 
-    async def get(self, url: StrOrURL, *, allow_redirects: bool = True, **kwargs: Any):
+    async def get(self, url: StrOrURL, **kwargs: Any):
         """Delegate GET request"""
-        response = await self.session.get(url, allow_redirects=allow_redirects, **kwargs)
+        response = await self.session.get(url, **kwargs)
         return await response.json()
 
     def __del__(self):

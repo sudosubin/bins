@@ -1,6 +1,8 @@
 # async
+aiofiles
 aiohttp
 aiopath
+aioshutil
 uvloop
 
 # cli

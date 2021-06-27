@@ -9,7 +9,7 @@ from anyio import AsyncFile
 
 from utils.configs import INSTALL_DIR
 
-_PackageLockKey = Literal['name', 'version']
+_PackageLockKey = Literal['name', 'version', 'bins']
 
 
 class PackageLock(object):
@@ -37,6 +37,7 @@ class PackageLock(object):
             return self.lock_content
 
         # Create if not exists
+        await self.lock_file.parent.mkdir(parents=True, exist_ok=True)
         await self.lock_file.touch()
 
         # Read lock file
