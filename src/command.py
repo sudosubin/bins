@@ -3,8 +3,8 @@ import sys
 from console import live, message
 from package import Package
 from package.status import PackageStatus
+from package.utils import removal
 from package.utils.load import load_packages_removal
-from package.utils.removal import remove_package
 
 
 class Command(object):
@@ -41,7 +41,7 @@ class Command(object):
             await package.check()
 
         for package in removals:
-            message.print_package_check(package['name'], package['version'], None)
+            await removal.check_package(package['name'], package['version'])
 
     @classmethod
     async def install(cls):
@@ -53,7 +53,7 @@ class Command(object):
             await package.install()
 
         for package in removals:
-            await remove_package(package['name'], package['version'])
+            await removal.remove_package(package['name'], package['version'])
 
     @classmethod
     async def execute(cls):

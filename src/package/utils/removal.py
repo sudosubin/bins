@@ -11,6 +11,11 @@ from lock import PackageLock
 from utils.configs import BIN_DIR, INSTALL_DIR
 
 
+async def check_package(name: str, version: str):
+    """Remove installed package check"""
+    message.print_package_check(name, version, None)
+
+
 async def remove_package(name: str, version: str):
     """Remove installed package from local"""
     def _get_heading(finish: bool = False):
