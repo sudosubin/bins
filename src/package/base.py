@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import List, Optional, Union
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
@@ -29,7 +29,7 @@ class Package(object):
         source: Package source type
 
         bin_name: Bin name to create symlink, and use in term
-        bin_pattern: Bin searching from unarchived output, regex pattern (github release)
+        bin_pattern: Bin searching from unarchived output, regex pattern
         asset_pattern: Asset searching from release, regex pattern (github release)
 
         _lock: Package lock instance
@@ -44,7 +44,7 @@ class Package(object):
     source: PackageSource = PackageSource.NONE
 
     bin_name: Optional[str] = None
-    bin_pattern: Optional[str] = None
+    bin_pattern: Optional[Union[str, List[str]]] = None
     asset_pattern: Optional[str] = None
 
     _lock: PackageLock
@@ -67,6 +67,17 @@ class Package(object):
         """Returns specific version to install"""
 
         return await self._source.planned_version()
+
+    async def download_url(self) -> str:
+        """Returns url to download bin"""
+        return await self._source.download_url()
+
+    @property
+    def bin_patterns(self) -> List[str]:
+        if isinstance(self.bin_pattern, str):
+            return [self.bin_pattern]
+
+        return self.bin_pattern or []
 
     async def status(self) -> PackageStatus:
         """Returns package's status: install, update, removal, none"""
@@ -100,7 +111,7 @@ class Package(object):
             return message.get_package_install(self.name, prev_version, next_version, finish=finish)
 
         with DynamicConsole(_get_heading()) as dynamic:
-            download_url = await self._source.download_url()
+            download_url = await self.download_url()
             download_file_name = download_url.split('/')[-1]
 
             # TODO(sudosubin): Use RFC-6266 'Content-Disposition' header to improve
@@ -115,7 +126,8 @@ class Package(object):
                 dynamic.add_message(message.get_package_download(download_file_name, content_length))
                 dynamic.add_message(message.get_package_download_progress(content_length, 0))
 
-                async for chunk in response.content.iter_chunked(1024):
+                chunk_unit = int(content_length / 100) if content_length else 1024
+                async for chunk in response.content.iter_chunked(chunk_unit):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
@@ -126,12 +138,12 @@ class Package(object):
 
                 dynamic.update_message(message.get_package_download_progress(finish=True))
 
-            dynamic.add_message(message.get_package_install_file(self.bin_pattern))
+            dynamic.add_message(message.get_package_install_file(self.bin_patterns))
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, out_dir)
             # TODO(sudosubin): Remove previous installed symlinks
-            symlink_paths = await create_symlink(out_dir, self.bin_pattern, self.bin_name)
+            symlink_paths = await create_symlink(out_dir, self.bin_patterns, self.bin_name)
 
             # Write lock
             await self._lock.write(version=next_version, bins=symlink_paths)
