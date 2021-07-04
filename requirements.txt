@@ -1,5 +1,11 @@
-# command-line
-fire
+# async
+aiohttp
+aiopath
+aioshutil
+uvloop
+
+# cli
+rich
 
 # dev
 flake8

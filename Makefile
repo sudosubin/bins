@@ -7,30 +7,24 @@ ifneq (,$(wildcard $(root)/.makerc))
 	include $(root)/.makerc
 endif
 
-define message
-	echo "$$(tput setaf 2)$(strip $(1))$$(tput sgr 0)"
-endef
-
 .PHONY: bootstrap
-bootstrap: install check run
+bootstrap: prepare check install
 
-.PHONY: install
-install:
+.PHONY: prepare
+prepare:
 	@if [ ! -d "$(root)/.venv" ]; then \
-		$(call message, Create Virtualenv); \
+		echo "$$(tput setaf 4)Creating virtualenv$$(tput sgr 0) in $(root)/.venv"; \
 		/usr/bin/python3 -m venv "$(root)/.venv"; \
-		printf "Done\n\n"; \
 	fi
 
-	@$(call message, Install python packages)
-	@"$(root)/.venv/bin/pip" install -U wheel
-	@"$(root)/.venv/bin/pip" install -U -r "$(root)/requirements.txt"
-	@echo ""
+	@echo "$$(tput setaf 4)Installing dependencies$$(tput sgr 0) in $(root)/.venv"
+	@"$(root)/.venv/bin/pip" install -U -q wheel
+	@"$(root)/.venv/bin/pip" install -U -q -r "$(root)/requirements.txt"
 
 .PHONY: check
 check:
 	@"$(root)/.venv/bin/python" "$(root)/src/main.py" check
 
-.PHONY: run
-run:
-	@"$(root)/.venv/bin/python" "$(root)/src/main.py" run
+.PHONY: install
+install:
+	@"$(root)/.venv/bin/python" "$(root)/src/main.py" install
