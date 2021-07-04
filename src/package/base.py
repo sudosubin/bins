@@ -1,7 +1,6 @@
 import os
 from typing import Optional
 
-import aioshutil
 from aiopath import AsyncPath
 from anyio import AsyncFile
 
@@ -12,9 +11,9 @@ from package.source import PackageSource
 from package.status import PackageStatus
 from package.utils.load import load_collection
 from source.base import BasePackageSource
+from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
 from utils.request import request
-from utils.validators import is_unpackable
 
 
 class Package(object):
@@ -72,13 +71,10 @@ class Package(object):
         installed_version = await self.installed_version()
         planned_version = await self.planned_version()
 
-        if planned_version is None:
-            raise ValueError(f'{self.name}\'s source fetching failed!')
-
         if installed_version is None:
             return PackageStatus.INSTALL
 
-        if planned_version != installed_version:
+        if installed_version != planned_version:
             return PackageStatus.UPDATE
 
         return PackageStatus.NONE
@@ -105,7 +101,8 @@ class Package(object):
             download_file_name = download_url.split('/')[-1]
 
             # TODO(sudosubin): Use RFC-6266 'Content-Disposition' header to improve
-            download_file_path = AsyncPath(os.path.join(INSTALL_DIR, self.name, download_file_name))
+            download_file_dir = os.path.join(INSTALL_DIR, self.name, download_file_name)
+            out_dir = os.path.join(INSTALL_DIR, self.name, 'out')
 
             # Download file
             async with request.session.get(download_url) as response:
@@ -119,7 +116,8 @@ class Package(object):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
-                async with await download_file_path.open(mode='wb', encoding=None, errors=None, newline=None) as file:
+                async with await AsyncPath(download_file_dir).open(mode='wb', encoding=None, errors=None,
+                                                                   newline=None) as file:
                     file: AsyncFile
                     await file.write(chunks)
 
@@ -129,20 +127,10 @@ class Package(object):
                 dynamic.add_message(message.get_package_install_file(self.bin_pattern))
 
             # Extract file
-            out_dir = AsyncPath(os.path.join(INSTALL_DIR, self.name, 'out'))
-            await aioshutil.rmtree(out_dir, ignore_errors=True)
-            await out_dir.mkdir(parents=True, exist_ok=True)
-
-            if is_unpackable(download_file_name):
-                await aioshutil.unpack_archive(download_file_path, out_dir)
-            else:
-                await aioshutil.copyfile(download_file_path, out_dir.joinpath(download_file_name))
-
-            # Clean up
-            await download_file_path.unlink()
+            await unarchive_file(download_file_dir, out_dir)
 
             # Write lock
-            await self._lock.write(name=self.name, version=next_version, bins=[])
+            await self._lock.write(version=next_version, bins=[])
 
             dynamic.update_heading(_get_heading(finish=True))
 

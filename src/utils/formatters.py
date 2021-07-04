@@ -1,4 +1,12 @@
+import re
 from typing import Union
+
+
+def semantic_release(version: str):
+    if re.match(r'^v\d', version):
+        return version[1:]
+
+    return version
 
 
 def format_bytes(size: Union[int, float]) -> str:

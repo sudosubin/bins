@@ -46,7 +46,7 @@ class PackageLock(object):
             try:
                 self.lock_content = OrderedDict(json.loads(lock_content))
             except json.JSONDecodeError:
-                self.lock_content = OrderedDict()
+                self.lock_content = OrderedDict({'name': self.package_name})
 
         return self.lock_content
 

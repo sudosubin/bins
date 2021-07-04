@@ -3,8 +3,8 @@ from typing import Dict, List
 
 from source.base import BasePackageSource
 from utils.configs import GITHUB_TOKEN
+from utils.formatters import semantic_release
 from utils.request import request
-from utils.validators import semantic_release
 
 
 class GitHubReleasePackageSource(BasePackageSource):
