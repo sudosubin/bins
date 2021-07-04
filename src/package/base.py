@@ -130,10 +130,11 @@ class Package(object):
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, out_dir)
-            await create_symlink(out_dir, self.bin_pattern, self.bin_name)
+            # TODO(sudosubin): Remove previous installed symlinks
+            symlink_paths = await create_symlink(out_dir, self.bin_pattern, self.bin_name)
 
             # Write lock
-            await self._lock.write(version=next_version, bins=[])
+            await self._lock.write(version=next_version, bins=symlink_paths)
 
             dynamic.update_heading(_get_heading(finish=True))
 
