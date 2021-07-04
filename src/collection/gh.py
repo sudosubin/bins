@@ -5,18 +5,18 @@ from package.source import PackageSource
 from utils import hardware
 
 
-class Lokalise2(Package):
-    name = 'lokalise2'
-    description = 'Lokalise CLI v2'
+class Gh(Package):
+    name = 'gh'
+    description = 'GitHub\'s official command line tool'
 
-    repo = 'lokalise/lokalise-cli-2-go'
+    repo = 'cli/cli'
     source = PackageSource.GITHUB_RELEASE
 
     if sys.platform == 'linux' and hardware.is_x86_64:
-        asset_pattern = r'.*linux_x86_64.*'
+        asset_pattern = r'.*linux_amd64\.tar\.gz'
     elif sys.platform == 'linux' and hardware.is_i386:
-        asset_pattern = r'.*linux_i386.*'
+        asset_pattern = r'.*linux_386\.tar\.gz'
     elif sys.platform == 'darwin':
-        asset_pattern = r'.*darwin.*'
+        asset_pattern = r'.*macOS_amd64\.tar\.gz'
 
-    bin_pattern = './lokalise2'
+    bin_pattern = './**/bin/gh'

@@ -11,7 +11,7 @@ async def create_symlink(src_dir: Union[str, Path], glob_pattern: Optional[str],
     if glob_pattern is None:
         glob_pattern = './*'
 
-    symlink_paths: List[AsyncPath] = [path async for path in AsyncPath(src_dir).glob(glob_pattern)]
+    symlink_paths: List[AsyncPath] = [path for path in Path(src_dir).glob(glob_pattern)]
     dest_paths: List[str] = []
 
     if len(symlink_paths) == 0:
@@ -25,7 +25,7 @@ async def create_symlink(src_dir: Union[str, Path], glob_pattern: Optional[str],
 
     for target_path in symlink_paths:
         dest_path = AsyncPath(os.path.join(BIN_DIR, symlink_name or target_path.name))
-        target_is_directory = await target_path.is_dir()
+        target_is_directory = target_path.is_dir()
 
         await dest_path.unlink(missing_ok=True)
         await dest_path.symlink_to(target_path, target_is_directory=target_is_directory)
