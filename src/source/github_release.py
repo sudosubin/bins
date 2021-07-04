@@ -36,7 +36,8 @@ class GitHubReleasePackageSource(BasePackageSource):
         ]
 
         if len(tag_names) != 1:
-            raise ValueError(f'Release for {self.package.name} ({self.package.version}) was not found!')
+            raise ValueError(f'Correct release for {self.package.name} ({self.package.version}) was not found! '
+                             f'({len(tag_names)} found)')
 
         self._planned_version = semantic_release(tag_names[0])
         return self._planned_version
@@ -49,6 +50,7 @@ class GitHubReleasePackageSource(BasePackageSource):
         assets = [asset for asset in release['assets'] if re.match(self.package.asset_pattern or '', asset['name'])]
 
         if len(assets) != 1:
-            raise ValueError(f'Asset for {self.package.name} ({self.package.version}) was not found!')
+            raise ValueError(f'Correct asset for {self.package.name} ({self.package.version}) was not found! '
+                             f'({len(assets)} found)')
 
         return assets[0]['browser_download_url']
