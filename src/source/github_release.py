@@ -43,10 +43,12 @@ class GitHubReleasePackageSource(BasePackageSource):
         return self._planned_version
 
     async def download_url(self) -> str:
+        planned_version = await self.planned_version()
+
         endpoint = f'https://api.github.com/repos/{self.package.repo}/releases'
         data = await request.get(endpoint, headers=self._get_headers())
 
-        release = next((release for release in data if self._planned_version == semantic_release(release['tag_name'])))
+        release = next((release for release in data if planned_version == semantic_release(release['tag_name'])))
         assets = [asset for asset in release['assets'] if re.match(self.package.asset_pattern or '', asset['name'])]
 
         if len(assets) != 1:
