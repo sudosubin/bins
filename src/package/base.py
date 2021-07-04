@@ -13,6 +13,7 @@ from package.utils.load import load_collection
 from source.base import BasePackageSource
 from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
+from utils.glob import create_symlink
 from utils.request import request
 
 
@@ -27,8 +28,9 @@ class Package(object):
         repo: Package vcs repository name
         source: Package source type
 
-        asset_pattern: Asset searching from release, regex pattern (github release)
+        bin_name: Bin name to create symlink, and use in term
         bin_pattern: Bin searching from unarchived output, regex pattern (github release)
+        asset_pattern: Asset searching from release, regex pattern (github release)
 
         _lock: Package lock instance
         _source: Package source instance
@@ -41,8 +43,9 @@ class Package(object):
     repo: Optional[str] = None
     source: PackageSource = PackageSource.NONE
 
-    asset_pattern: Optional[str] = None
+    bin_name: Optional[str] = None
     bin_pattern: Optional[str] = None
+    asset_pattern: Optional[str] = None
 
     _lock: PackageLock
     _source: BasePackageSource
@@ -123,11 +126,11 @@ class Package(object):
 
                 dynamic.update_message(message.get_package_download_progress(finish=True))
 
-            if self.bin_pattern is not None:
-                dynamic.add_message(message.get_package_install_file(self.bin_pattern))
+            dynamic.add_message(message.get_package_install_file(self.bin_pattern))
 
-            # Extract file
+            # Extract and install with glob pattern
             await unarchive_file(download_file_dir, out_dir)
+            await create_symlink(out_dir, self.bin_pattern, self.bin_name)
 
             # Write lock
             await self._lock.write(version=next_version, bins=[])

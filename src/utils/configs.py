@@ -7,6 +7,6 @@ PROJECT_DIR: str = os.path.join(ROOT_DIR, 'src')
 COLLECTION_DIR: str = os.path.join(PROJECT_DIR, 'collection')
 
 INSTALL_DIR: str = os.path.join(ROOT_DIR, 'installs')
-BIN_DIR: str = os.path.join(os.path.expanduser('~'), 'bins')
+BIN_DIR: str = os.path.join(os.path.expanduser('~'), 'bin')
 
 GITHUB_TOKEN: Optional[str] = os.environ.get('GITHUB_TOKEN')

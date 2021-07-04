@@ -2,8 +2,9 @@ import asyncio
 import contextlib
 import datetime
 
-import rich
 from rich.live import Live
+
+from console import message
 
 
 @contextlib.contextmanager
@@ -26,4 +27,4 @@ def print_package_collecting():
         yield
 
     # Empty line after all output
-    rich.print()
+    message.print_empty_line()

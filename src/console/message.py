@@ -38,7 +38,7 @@ def print_package_check(name: str, prev_version: Optional[str], next_version: Op
     rich.print(f'{indent(2)}[green]•[/green] Planned for {_package_status()} [cyan]{name}[/cyan] {versions}')
 
 
-def get_package_install(name: str, prev_version: Optional[str], next_version: Optional[str], finish: bool):
+def get_package_install(name: str, prev_version: Optional[str], next_version: Optional[str], finish: bool) -> str:
     def _package_status():
         if prev_version is None:
             return 'Installing'
@@ -51,15 +51,16 @@ def get_package_install(name: str, prev_version: Optional[str], next_version: Op
     dot_color = 'green' if finish else 'blue'
     versions = format_package_versions(prev_version, next_version)
 
-    message = f'\n{indent(2)}[{dot_color}]•[/{dot_color}] {_package_status()} [cyan]{name}[/cyan] {versions}'
-    return message
+    return f'\n{indent(2)}[{dot_color}]•[/{dot_color}] {_package_status()} [cyan]{name}[/cyan] {versions}'
 
 
-def get_package_install_file(file_name: str) -> str:
+def get_package_install_file(file_name: Optional[str]) -> str:
+    if file_name is None:
+        return f'{indent(6)}[yellow]Warning: You did not specify bin pattern to install![/yellow]'
     return f'{indent(6)}Installing {file_name}'
 
 
-def get_package_download(file_name: str, file_size: Optional[int]):
+def get_package_download(file_name: str, file_size: Optional[int]) -> str:
     readable_size = format_bytes(file_size) if file_size else 'unknown'
     return f'{indent(6)}Downloading {file_name} ({readable_size})'
 
