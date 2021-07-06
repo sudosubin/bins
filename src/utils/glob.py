@@ -8,9 +8,20 @@ from aiopath import AsyncPath
 from utils.configs import BIN_DIR
 
 
-async def make_executable(path: Path):
+async def make_executable(path: Union[str, Path]):
     st = os.stat(path)
     os.chmod(path, st.st_mode | stat.S_IEXEC)
+
+
+async def create_symlink_base(target: Union[str, Path], dest: Union[str, Path], is_executable: bool = False):
+    dest_dir = AsyncPath(dest)
+    target_is_directory = await AsyncPath(target).is_dir()
+
+    if is_executable and not target_is_directory:
+        await make_executable(target)
+
+    await dest_dir.unlink(missing_ok=True)
+    await dest_dir.symlink_to(target, target_is_directory=target_is_directory)
 
 
 async def create_symlink(src_dir: Union[str, Path], glob_patterns: List[str], symlink_name: Optional[str]):
@@ -27,16 +38,10 @@ async def create_symlink(src_dir: Union[str, Path], glob_patterns: List[str], sy
 
     await AsyncPath(BIN_DIR).mkdir(parents=True, exist_ok=True)
 
-    for target_path in symlink_paths:
-        dest_path = AsyncPath(os.path.join(BIN_DIR, symlink_name or target_path.name))
-        target_is_directory = target_path.is_dir()
+    for target in symlink_paths:
+        dest = os.path.join(BIN_DIR, symlink_name or target.name)
+        dest_paths.append(dest)
 
-        if not target_is_directory:
-            await make_executable(target_path)
-
-        await dest_path.unlink(missing_ok=True)
-        await dest_path.symlink_to(target_path, target_is_directory=target_is_directory)
-
-        dest_paths.append(str(dest_path))
+        await create_symlink_base(target=target, dest=dest, is_executable=True)
 
     return dest_paths
