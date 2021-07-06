@@ -18,7 +18,7 @@ async def create_symlink(src_dir: Union[str, Path], glob_patterns: List[str], sy
 
     dest_paths: List[str] = []
 
-    if len(symlink_paths) == 0:
+    if glob_patterns and len(symlink_paths) == 0:
         raise ValueError('No symlink paths were found!')
 
     # If symlink_name is specified, only one symlink available
