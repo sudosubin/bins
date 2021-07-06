@@ -79,6 +79,10 @@ class Package(object):
 
         return self.bin_pattern or []
 
+    @property
+    def package_out_dir(self):
+        return os.path.join(INSTALL_DIR, self.name, 'out')
+
     async def status(self) -> PackageStatus:
         """Returns package's status: install, update, removal, none"""
 
@@ -116,7 +120,6 @@ class Package(object):
 
             # TODO(sudosubin): Use RFC-6266 'Content-Disposition' header to improve
             download_file_dir = os.path.join(INSTALL_DIR, self.name, download_file_name)
-            out_dir = os.path.join(INSTALL_DIR, self.name, 'out')
 
             # Download file
             async with request.session.get(download_url) as response:
@@ -141,14 +144,20 @@ class Package(object):
             dynamic.add_message(message.get_package_install_file(self.bin_patterns))
 
             # Extract and install with glob pattern
-            await unarchive_file(download_file_dir, out_dir)
+            await unarchive_file(download_file_dir, self.package_out_dir)
             # TODO(sudosubin): Remove previous installed symlinks
-            symlink_paths = await create_symlink(out_dir, self.bin_patterns, self.bin_name)
+            symlink_paths = await create_symlink(self.package_out_dir, self.bin_patterns, self.bin_name)
+
+            # Postinstall hook
+            await self.postinstall()
 
             # Write lock
             await self._lock.write(version=next_version, bins=symlink_paths)
 
             dynamic.update_heading(_get_heading(finish=True))
+
+    async def postinstall(self):
+        pass
 
     @classmethod
     async def collection(cls):
