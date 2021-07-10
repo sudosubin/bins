@@ -7,7 +7,7 @@ from package.source import PackageSource
 from utils.glob import create_symlink_base
 
 
-class Pretandard(Package):
+class Pretendard(Package):
     name = 'fonts/pretandard'
     description = 'A system-ui alternative font that can be used on any platform'
 
@@ -18,7 +18,7 @@ class Pretandard(Package):
 
     async def postinstall(self):
         bin_font_dir = os.path.join(self.package_out_dir, 'public', 'static')
-        home_font_dir = AsyncPath(os.path.expanduser('~'), '.local/share/fonts/Pretandard')
+        home_font_dir = AsyncPath(os.path.expanduser('~'), '.local/share/fonts/Pretendard')
         await home_font_dir.parent.mkdir(parents=True, exist_ok=True)
 
         await create_symlink_base(target=bin_font_dir, dest=home_font_dir)
