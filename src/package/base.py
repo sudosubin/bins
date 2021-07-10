@@ -13,6 +13,7 @@ from package.utils.load import load_collection
 from source.base import BasePackageSource
 from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
+from utils.formatters import format_download_filename
 from utils.glob import create_symlink
 from utils.request import request
 
@@ -116,17 +117,16 @@ class Package(object):
 
         with DynamicConsole(_get_heading()) as dynamic:
             download_url = await self.download_url()
-            download_file_name = download_url.split('/')[-1]
-
-            # TODO(sudosubin): Use RFC-6266 'Content-Disposition' header to improve
-            download_file_dir = os.path.join(INSTALL_DIR, self.name, download_file_name)
 
             # Download file
             async with request.session.get(download_url) as response:
                 chunks: bytes = b''
                 content_length = int(response.headers.get('Content-Length', '0')) or None
 
-                dynamic.add_message(message.get_package_download(download_file_name, content_length))
+                download_filename = format_download_filename(response.headers.get('Content-Disposition'), download_url)
+                download_file_dir = os.path.join(INSTALL_DIR, self.name, download_filename)
+
+                dynamic.add_message(message.get_package_download(download_filename, content_length))
                 dynamic.add_message(message.get_package_download_progress(content_length, 0))
 
                 chunk_unit = int(content_length / 100) if content_length else 1024
@@ -134,8 +134,8 @@ class Package(object):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
-                async with await AsyncPath(download_file_dir).open(mode='wb', encoding=None, errors=None,
-                                                                   newline=None) as file:
+                async with AsyncPath(download_file_dir).open(mode='wb', encoding=None, errors=None,
+                                                             newline=None) as file:
                     file: AsyncFile
                     await file.write(chunks)
 

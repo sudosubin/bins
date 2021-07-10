@@ -1,5 +1,6 @@
+import cgi
 import re
-from typing import Union
+from typing import Optional, Union
 
 
 def semantic_release(version: str):
@@ -32,3 +33,15 @@ def format_bytes(size: Union[int, float]) -> str:
         return '{0:.2f} GB'.format(size / GB)
 
     raise ValueError('File size is too large to download! ({0:.2f} GB)'.format(size / GB))
+
+
+def format_download_filename(content_disposition: Optional[str], download_url: str) -> str:
+    """Uses RFC-6266 'Content-Disposition' header to get file name"""
+
+    value, params = cgi.parse_header(content_disposition or '')
+    download_filename = params.get('filename')
+
+    if download_filename:
+        return download_filename
+
+    return download_url.split('/')[-1]
