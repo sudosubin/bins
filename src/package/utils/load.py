@@ -25,11 +25,14 @@ async def load_collection() -> List[str]:
         return collection_packages
 
     # Import and loads from local modules
-    async for path in AsyncPath(COLLECTION_DIR).iterdir():
+    async for path in AsyncPath(COLLECTION_DIR).glob('**/*'):
         if path.suffix != '.py':
             continue
 
-        importlib.import_module(f'collection.{path.stem}')
+        relative_name = str(path.relative_to(COLLECTION_DIR))
+        collection_name = relative_name.replace('/', '.').replace('.py', '')
+
+        importlib.import_module(f'collection.{collection_name}')
         collection_packages.append(path.stem)
 
     return collection_packages
