@@ -39,7 +39,7 @@ class PackageLock(object):
         await self.lock_file.touch()
 
         # Read lock file
-        async with await self.lock_file.open() as file:
+        async with self.lock_file.open() as file:
             file: AsyncFile
             lock_content = await file.read()
 
@@ -56,7 +56,7 @@ class PackageLock(object):
         raw_content = {**(self.lock_content or {}), **kwargs}
         lock_content = OrderedDict(sorted(raw_content.items(), key=lambda item: item[0]))
 
-        async with await self.lock_file.open(mode='wb', encoding=None, errors=None, newline=None) as file:
+        async with self.lock_file.open(mode='wb', encoding=None, errors=None, newline=None) as file:
             file: AsyncFile
 
             raw_data = json.dumps(lock_content, indent=2).encode()

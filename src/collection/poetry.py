@@ -8,7 +8,7 @@ from anyio import AsyncFile
 from package import Package
 from package.source import PackageSource
 from utils.configs import BIN_DIR
-from utils.glob import create_symlink_base, make_executable
+from utils.glob import create_symlink_base
 from utils.request import request
 
 
@@ -55,10 +55,9 @@ class Poetry(Package):
         get_poetry = await self.get_poetry_py()
         bin_poetry_content = f'#!/usr/bin/env python3\n{get_poetry.BIN}'
 
-        async with await bin_poetry_dir.open(mode='w') as file:
+        async with bin_poetry_dir.open(mode='w') as file:
             file: AsyncFile
             await file.write(bin_poetry_content)  # type: ignore
 
         # Post create ./bin/poetry
-        await make_executable(bin_poetry_dir)
         await create_symlink_base(target=bin_poetry_dir, dest=home_poetry_dir, is_executable=True)
