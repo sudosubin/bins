@@ -18,20 +18,19 @@ class GitHubTagPackageSource(BasePackageSource):
 
     @staticmethod
     def _get_tag_version(tag: Dict) -> str:
-        ref: str = tag.get('ref', '')
-        version = ref.replace('refs/tags/', '')
-        return semantic_release(version)
+        tag_name = tag.get('name', '')
+        return semantic_release(tag_name)
 
     async def planned_version_raw(self) -> Dict:
         if self._planned_version_raw is not None:
             return self._planned_version_raw
 
-        endpoint = f'https://api.github.com/repos/{self.package.repo}/git/refs/tags'
+        endpoint = f'https://api.github.com/repos/{self.package.repo}/tags'
         data: List[Dict] = await request.get(endpoint, headers=self._get_headers())
 
         # Search for latest
         if self.package.version is None:
-            self._planned_version_raw = data[-1]
+            self._planned_version_raw = data[0]
             return self._planned_version_raw
 
         tag_versions: List[Dict] = [tag for tag in data if self.package.version == self._get_tag_version(tag)]
@@ -53,5 +52,4 @@ class GitHubTagPackageSource(BasePackageSource):
 
     async def download_url(self) -> str:
         planned_version_raw = await self.planned_version_raw()
-        ref_tag_version = planned_version_raw.get('ref', '')
-        return f'https://github.com/{self.package.repo}/archive/{ref_tag_version}.tar.gz'
+        return planned_version_raw.get('tarball_url', '')
