@@ -17,7 +17,7 @@ class Pipenv(Package):
     source = PackageSource.GITHUB_TAG
 
     async def postinstall(self):
-        # Remove parent dir
+        # Consider top directory
         pipenv_dirs = [path async for path in AsyncPath(self.package_out_dir).iterdir() if await path.is_dir()]
 
         if len(pipenv_dirs) != 1:
