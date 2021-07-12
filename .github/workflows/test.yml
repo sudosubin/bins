@@ -24,6 +24,3 @@ jobs:
 
       - name: Check packages
         run: make check
-
-      - name: Install packages
-        run: make install
