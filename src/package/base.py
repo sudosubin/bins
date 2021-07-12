@@ -127,8 +127,7 @@ class Package(object):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
-                async with AsyncPath(download_file_dir).open(mode='wb', encoding=None, errors=None,
-                                                             newline=None) as file:
+                async with AsyncPath(download_file_dir).open(mode='wb') as file:
                     file: AsyncFile
                     await file.write(chunks)
 
