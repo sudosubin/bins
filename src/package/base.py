@@ -105,6 +105,9 @@ class Package(object):
         prev_version = await self.installed_version()
         next_version = await self.planned_version()
 
+        # Predownload hook
+        await self.predownload()
+
         def _get_heading(finish: bool = False):
             return message.get_package_install(self.name, prev_version, next_version, finish=finish)
 
@@ -133,10 +136,17 @@ class Package(object):
 
                 dynamic.update_message(message.get_package_download_progress(finish=True))
 
+            # Postdownload hook
+            await self.postdownload()
+
             dynamic.add_message(message.get_package_install_file(self.link_pattern))
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, self.package_out_dir)
+
+            # Preinstall hook
+            await self.preinstall()
+
             # TODO(sudosubin): Remove previous installed symlinks, read from lock file
             await create_symlink(self.package_out_dir, self.link_pattern)
             await make_executable(self.package_out_dir, self.bin_pattern)
@@ -149,8 +159,16 @@ class Package(object):
 
             dynamic.update_heading(_get_heading(finish=True))
 
+    async def predownload(self):
+        pass
+
+    async def postdownload(self):
+        pass
+
+    async def preinstall(self):
+        pass
+
     async def postinstall(self):
-        """Implemented from each collection, onlt if needed"""
         pass
 
     @classmethod
