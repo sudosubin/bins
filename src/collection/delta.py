@@ -19,4 +19,5 @@ class Delta(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*darwin\.tar\.gz'
 
-    bin_pattern = './**/delta'
+    bin_pattern = ['./*/delta']
+    link_pattern = {'./*/delta': '$BIN_DIR/delta'}
