@@ -14,5 +14,5 @@ class AwsVault(Package):
     if sys.platform == 'linux':
         asset_pattern = r'aws-vault-linux-amd64'
 
-    bin_name = 'aws-vault'
-    bin_pattern = './aws-vault-*'
+    bin_pattern = ['./aws-vault-*']
+    link_pattern = {'./aws-vault-*': '$BIN_DIR/aws-vault'}
