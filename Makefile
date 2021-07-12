@@ -28,3 +28,7 @@ check:
 .PHONY: install
 install:
 	@"$(root)/.venv/bin/python" "$(root)/src/main.py" install
+
+.PHONY: lint
+lint:
+	@"$(root)/.venv/bin/flake8" "$(root)/src"

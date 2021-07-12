@@ -1,0 +1,26 @@
+name: Test
+
+on: [push]
+
+jobs:
+  test-bins:
+    name: Test Bins
+    runs-on: ubuntu-latest
+    container: debian:bullseye-slim
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install requirements
+        run: >
+          apt-get update;
+          apt-get install --no-install-recommends -y \
+            python3 python3-venv build-essential;
+
+      - name: Set github token for api call
+        run: echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .makerc
+
+      - name: Prepare dependencies
+        run: make prepare
+
+      - name: Check packages
+        run: make check

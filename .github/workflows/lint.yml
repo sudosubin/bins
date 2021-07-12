@@ -1,0 +1,23 @@
+name: Lint
+
+on: [push]
+
+jobs:
+  lint:
+    name: Check lint
+    runs-on: ubuntu-latest
+    container: debian:bullseye-slim
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install requirements
+        run: >
+          apt-get update;
+          apt-get install --no-install-recommends -y \
+            python3 python3-venv build-essential;
+
+      - name: Prepare dependencies
+        run: make prepare
+
+      - name: Run lint
+        run: make lint
