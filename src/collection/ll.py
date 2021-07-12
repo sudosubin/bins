@@ -16,4 +16,5 @@ class Ll(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*macos.*'
 
-    bin_pattern = './ll'
+    bin_pattern = ['./ll']
+    link_pattern = {'./ll': '$BIN_DIR/ll'}
