@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
@@ -15,7 +15,7 @@ from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
 from utils.formatters import format_download_filename
 from utils.request import request
-from utils.symlink import create_symlink
+from utils.symlink import create_symlink, make_executable
 
 
 class Package(object):
@@ -30,6 +30,7 @@ class Package(object):
         source: Package source type
         asset_pattern: Asset searching from release, regex pattern (github release)
 
+        bin_pattern: Bin files to make executable
         link_pattern: Link from unarhived outputs to specific paths
 
         _lock: Package lock instance
@@ -44,6 +45,7 @@ class Package(object):
     source: PackageSource = PackageSource.NONE
     asset_pattern: Optional[str] = None
 
+    bin_pattern: List[str] = []
     link_pattern: Dict[str, str] = {}
 
     _lock: PackageLock
@@ -138,6 +140,7 @@ class Package(object):
             await unarchive_file(download_file_dir, self.package_out_dir)
             # TODO(sudosubin): Remove previous installed symlinks, read from lock file
             await create_symlink(self.package_out_dir, self.link_pattern)
+            await make_executable(self.package_out_dir, self.bin_pattern)
 
             # Postinstall hook
             await self.postinstall()
