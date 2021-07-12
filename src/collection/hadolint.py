@@ -16,5 +16,5 @@ class Hadolint(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*Darwin.*'
 
-    bin_name = 'hadolint'
-    bin_pattern = './hadolint-*'
+    bin_pattern = ['./hadolint-*']
+    link_pattern = {'./hadolint-*': "$BIN_DIR/hadolint"}

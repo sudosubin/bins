@@ -12,7 +12,8 @@ class Kubectl(Package):
     repo = 'kubernetes/kubernetes'
     source = PackageSource.GITHUB_RELEASE
 
-    bin_pattern = './kubectl'
+    bin_pattern = ['./kubectl']
+    link_pattern = {'./kubectl': '$BIN_DIR/kubectl'}
 
     async def download_url(self) -> str:
         arch = 'amd64' if hardware.is_x86_64 else '386'

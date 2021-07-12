@@ -19,4 +19,5 @@ class Lokalise2(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*darwin.*'
 
-    bin_pattern = './lokalise2'
+    bin_pattern = ['./lokalise2']
+    link_pattern = {'./lokalise2': '$BIN_DIR/lokalise2'}

@@ -12,8 +12,8 @@ class Minikube(Package):
     repo = 'kubernetes/minikube'
     source = PackageSource.GITHUB_RELEASE
 
-    bin_name = 'minikube'
-    bin_pattern = './minikube-*'
+    bin_pattern = ['./minikube-*']
+    link_pattern = {'./minikube-*': '$BIN_DIR/minikube'}
 
     async def download_url(self) -> str:
         arch = 'amd64' if hardware.is_x86_64 else '386'

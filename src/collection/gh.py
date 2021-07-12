@@ -19,4 +19,5 @@ class Gh(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*macOS_amd64\.tar\.gz'
 
-    bin_pattern = './**/bin/gh'
+    bin_pattern = ['./*/bin/gh']
+    link_pattern = {'./*/bin/gh': '$BIN_DIR/gh'}

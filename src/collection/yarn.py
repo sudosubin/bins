@@ -8,6 +8,7 @@ class Yarn(Package):
 
     repo = 'yarnpkg/yarn'
     source = PackageSource.GITHUB_RELEASE
-
     asset_pattern = r'.*\.tar\.gz$'
-    bin_pattern = './**/bin/yarn'
+
+    bin_pattern = ['./*/bin/yarn']
+    link_pattern = {'./*/bin/yarn': '$BIN_DIR/yarn'}

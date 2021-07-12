@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional, Union
+from typing import Dict, List, Optional
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
@@ -14,8 +14,8 @@ from source.base import BasePackageSource
 from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
 from utils.formatters import format_download_filename
-from utils.glob import create_symlink
 from utils.request import request
+from utils.symlink import create_symlink, make_executable
 
 
 class Package(object):
@@ -28,10 +28,10 @@ class Package(object):
 
         repo: Package vcs repository name
         source: Package source type
-
-        bin_name: Bin name to create symlink, and use in term
-        bin_pattern: Bin searching from unarchived output, regex pattern
         asset_pattern: Asset searching from release, regex pattern (github release)
+
+        bin_pattern: Bin files to make executable
+        link_pattern: Link from unarhived outputs to specific paths
 
         _lock: Package lock instance
         _source: Package source instance
@@ -43,10 +43,10 @@ class Package(object):
 
     repo: Optional[str] = None
     source: PackageSource = PackageSource.NONE
-
-    bin_name: Optional[str] = None
-    bin_pattern: Optional[Union[str, List[str]]] = None
     asset_pattern: Optional[str] = None
+
+    bin_pattern: List[str] = []
+    link_pattern: Dict[str, str] = {}
 
     _lock: PackageLock
     _source: BasePackageSource
@@ -72,13 +72,6 @@ class Package(object):
     async def download_url(self) -> str:
         """Returns url to download bin"""
         return await self._source.download_url()
-
-    @property
-    def bin_patterns(self) -> List[str]:
-        if isinstance(self.bin_pattern, str):
-            return [self.bin_pattern]
-
-        return self.bin_pattern or []
 
     @property
     def package_out_dir(self):
@@ -112,6 +105,9 @@ class Package(object):
         prev_version = await self.installed_version()
         next_version = await self.planned_version()
 
+        # Predownload hook
+        await self.predownload()
+
         def _get_heading(finish: bool = False):
             return message.get_package_install(self.name, prev_version, next_version, finish=finish)
 
@@ -134,27 +130,41 @@ class Package(object):
                     chunks += chunk
                     dynamic.update_message(message.get_package_download_progress(content_length, len(chunks)))
 
-                async with AsyncPath(download_file_dir).open(mode='wb', encoding=None, errors=None,
-                                                             newline=None) as file:
-                    file: AsyncFile
-                    await file.write(chunks)
+                await AsyncPath(download_file_dir).write_bytes(chunks)
 
                 dynamic.update_message(message.get_package_download_progress(finish=True))
 
-            dynamic.add_message(message.get_package_install_file(self.bin_patterns))
+            # Postdownload hook
+            await self.postdownload()
+
+            dynamic.add_message(message.get_package_install_file(self.link_pattern))
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, self.package_out_dir)
-            # TODO(sudosubin): Remove previous installed symlinks
-            symlink_paths = await create_symlink(self.package_out_dir, self.bin_patterns, self.bin_name)
+
+            # Preinstall hook
+            await self.preinstall()
+
+            # TODO(sudosubin): Remove previous installed symlinks, read from lock file
+            await create_symlink(self.package_out_dir, self.link_pattern)
+            await make_executable(self.package_out_dir, self.bin_pattern)
 
             # Postinstall hook
             await self.postinstall()
 
             # Write lock
-            await self._lock.write(version=next_version, bins=symlink_paths)
+            await self._lock.write(version=next_version, files=tuple(self.link_pattern.values()))
 
             dynamic.update_heading(_get_heading(finish=True))
+
+    async def predownload(self):
+        pass
+
+    async def postdownload(self):
+        pass
+
+    async def preinstall(self):
+        pass
 
     async def postinstall(self):
         pass
