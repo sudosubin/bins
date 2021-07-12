@@ -3,12 +3,9 @@ import sys
 from typing import Any
 
 from aiopath import AsyncPath
-from anyio import AsyncFile
 
 from package import Package
 from package.source import PackageSource
-from utils.configs import BIN_DIR
-from utils.glob import create_symlink_base
 from utils.request import request
 
 
@@ -24,6 +21,9 @@ class Poetry(Package):
     elif sys.platform == 'darwin':
         asset_pattern = r'.*darwin\.tar\.gz'
 
+    bin_pattern = ['./bin/poetry']
+    link_pattern = {'./bin/poetry': '$BIN_DIR/poetry'}
+
     async def get_poetry_py(self) -> Any:
         planned_version = await self.planned_version()
         script_url = f'https://raw.githubusercontent.com/python-poetry/poetry/{planned_version}/get-poetry.py'
@@ -36,10 +36,9 @@ class Poetry(Package):
 
         return get_poetry
 
-    async def postinstall(self):
+    async def preinstall(self):
         bin_dir = AsyncPath(self.package_out_dir, 'bin')
         bin_poetry_dir = AsyncPath(bin_dir, 'poetry')
-        home_poetry_dir = AsyncPath(BIN_DIR, 'poetry')
 
         lib_dir = AsyncPath(self.package_out_dir, 'lib', 'poetry')
         poetry_dir = AsyncPath(self.package_out_dir, 'poetry')
@@ -48,16 +47,9 @@ class Poetry(Package):
         await lib_dir.mkdir(parents=True, exist_ok=True)
         await poetry_dir.rename(lib_dir)
 
-        # Create ./bin/poetry
-        await bin_poetry_dir.parent.mkdir(parents=True, exist_ok=True)
-        await bin_poetry_dir.touch()
-
         get_poetry = await self.get_poetry_py()
         bin_poetry_content = f'#!/usr/bin/env python3\n{get_poetry.BIN}'
 
-        async with bin_poetry_dir.open(mode='w') as file:
-            file: AsyncFile
-            await file.write(bin_poetry_content)  # type: ignore
-
-        # Post create ./bin/poetry
-        await create_symlink_base(target=bin_poetry_dir, dest=home_poetry_dir, is_executable=True)
+        # Create ./bin/poetry
+        await bin_poetry_dir.parent.mkdir(parents=True, exist_ok=True)
+        await bin_poetry_dir.write_text(bin_poetry_content)
