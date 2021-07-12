@@ -1,10 +1,10 @@
-name: Test
+name: Lint
 
 on: [push]
 
 jobs:
-  test-bins:
-    name: Test Bins
+  lint:
+    name: Check lint
     runs-on: ubuntu-latest
     container: debian:bullseye-slim
     steps:
@@ -16,14 +16,8 @@ jobs:
           apt-get install --no-install-recommends -y \
             python3 python3-venv build-essential;
 
-      - name: Set github token for api call
-        run: echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .makerc
-
       - name: Prepare dependencies
         run: make prepare
 
-      - name: Check packages
-        run: make check
-
-      - name: Install packages
-        run: make install
+      - name: Run lint
+        run: make lint
