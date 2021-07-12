@@ -1,7 +1,7 @@
 # Bins
 
 ![python](https://img.shields.io/badge/python-3.8%20%7C%203.9-blue.svg)
-![test](https://github.com/sudosubin/bins/workflows/Test/badge.svg?branch=feature/add-github-workflows)
+![test](https://github.com/sudosubin/bins/workflows/Test/badge.svg?branch=main)
 
 Personal binary package manager, installs some useful softwares.
 
