@@ -28,10 +28,9 @@ class Package(object):
 
         repo: Package vcs repository name
         source: Package source type
+        asset_pattern: Asset searching from release, regex pattern (github release)
 
         link_pattern: Link from unarhived outputs to specific paths
-
-        asset_pattern: Asset searching from release, regex pattern (github release)
 
         _lock: Package lock instance
         _source: Package source instance
@@ -43,10 +42,9 @@ class Package(object):
 
     repo: Optional[str] = None
     source: PackageSource = PackageSource.NONE
+    asset_pattern: Optional[str] = None
 
     link_pattern: Dict[str, str] = {}
-
-    asset_pattern: Optional[str] = None
 
     _lock: PackageLock
     _source: BasePackageSource

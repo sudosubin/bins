@@ -8,6 +8,7 @@ class FiraMono(Package):
 
     repo = 'ryanoasis/nerd-fonts'
     source = PackageSource.GITHUB_RELEASE
+    asset_pattern = r'FiraMono\.zip'
 
     link_pattern = {
         './Fira Mono Bold Nerd Font Complete Mono.otf':
@@ -17,5 +18,3 @@ class FiraMono(Package):
         './Fira Mono Regular Nerd Font Complete Mono.otf':
         '~/.local/share/fonts/FiraMono/Fira Mono Regular Nerd Font Complete Mono.otf'
     }
-
-    asset_pattern = r'FiraMono\.zip'
