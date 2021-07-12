@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional, Union
+from typing import Dict, List, Optional
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
@@ -29,8 +29,7 @@ class Package(object):
         repo: Package vcs repository name
         source: Package source type
 
-        bin_name: Bin name to create symlink, and use in term
-        bin_pattern: Bin searching from unarchived output, regex pattern
+        link_pattern: Link from unarhived outputs to specific paths
         asset_pattern: Asset searching from release, regex pattern (github release)
 
         _lock: Package lock instance
@@ -44,8 +43,7 @@ class Package(object):
     repo: Optional[str] = None
     source: PackageSource = PackageSource.NONE
 
-    bin_name: Optional[str] = None
-    bin_pattern: Optional[Union[str, List[str]]] = None
+    link_pattern: Dict[str, str] = {}
     asset_pattern: Optional[str] = None
 
     _lock: PackageLock
@@ -72,13 +70,6 @@ class Package(object):
     async def download_url(self) -> str:
         """Returns url to download bin"""
         return await self._source.download_url()
-
-    @property
-    def bin_patterns(self) -> List[str]:
-        if isinstance(self.bin_pattern, str):
-            return [self.bin_pattern]
-
-        return self.bin_pattern or []
 
     @property
     def package_out_dir(self):
@@ -141,7 +132,7 @@ class Package(object):
 
                 dynamic.update_message(message.get_package_download_progress(finish=True))
 
-            dynamic.add_message(message.get_package_install_file(self.bin_patterns))
+            dynamic.add_message(message.get_package_install_file(self.link_pattern))
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, self.package_out_dir)
@@ -157,6 +148,7 @@ class Package(object):
             dynamic.update_heading(_get_heading(finish=True))
 
     async def postinstall(self):
+        """Implemented from each collection, onlt if needed"""
         pass
 
     @classmethod

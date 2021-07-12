@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Dict, Optional
 
 import rich
 from rich.progress import ProgressBar
@@ -54,11 +54,11 @@ def get_package_install(name: str, prev_version: Optional[str], next_version: Op
     return f'\n{indent(2)}[{dot_color}]•[/{dot_color}] {_package_status()} [cyan]{name}[/cyan] {versions}'
 
 
-def get_package_install_file(file_patterns: List[str]) -> str:
-    if not file_patterns:
-        return f'{indent(6)}[yellow]Warning: You did not specify bin pattern to install![/yellow]'
+def get_package_install_file(link_pattern: Dict[str, str]) -> str:
+    if not link_pattern:
+        return f'{indent(6)}[yellow]Warning: You did not specify any pattern to link![/yellow]'
 
-    return f'{indent(6)}Installing {", ".join(file_patterns)}'
+    return f'{indent(6)}Installing {", ".join(link_pattern.keys())}'
 
 
 def get_package_download(file_name: str, file_size: Optional[int]) -> str:
