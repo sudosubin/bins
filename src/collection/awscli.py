@@ -12,6 +12,7 @@ class AwsCli(Package):
     source = PackageSource.GITHUB_TAG
 
     bin_pattern = ['./aws/dist/aws', './aws/dist/aws_completer']
+    link_pattern = {'./aws/dist/aws': '$BIN_DIR/aws', './aws/dist/aws_completer': '$BIN_DIR/aws_completer'}
 
     async def download_url(self) -> str:
         if sys.platform != 'linux':
