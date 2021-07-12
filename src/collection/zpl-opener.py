@@ -1,10 +1,7 @@
-import os
-
-from aiopath import AsyncPath
+import asyncio
 
 from package import Package
 from package.source import PackageSource
-from utils.glob import create_symlink_base
 
 
 class ZplOpener(Package):
@@ -14,19 +11,15 @@ class ZplOpener(Package):
     repo = 'sudosubin/zeplin-uri-opener'
     source = PackageSource.GITHUB_TAG
 
-    bin_pattern = './**/src/zpl-open'
+    bin_pattern = ['./*/src/zpl-open']
+    link_pattern = {
+        './*/src/zpl-open': '$BIN_DIR/zpl-open',
+        './*/src/zpl-opener.desktop': '~/.local/share/applications/zpl-opener.desktop'
+    }
 
     async def postinstall(self):
-        # Consider parent dir
-        project_dirs = [path async for path in AsyncPath(self.package_out_dir).iterdir() if await path.is_dir()]
+        proc = await asyncio.create_subprocess_shell('xdg-mime default zpl-opener.desktop x-scheme-handler/zpl',
+                                                     stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.PIPE)
 
-        if len(project_dirs) != 1:
-            raise ValueError(f'ZplOpener has multiple root folders! ({len(project_dirs)})')
-
-        project_dir = str(project_dirs[0]).strip()
-
-        bin_desktop_dir = AsyncPath(project_dir, 'src', 'zpl-opener.desktop')
-        home_desktop_dir = AsyncPath(os.path.expanduser('~'), '.local/share/applications/zpl-opener.desktop')
-        await AsyncPath(home_desktop_dir).parent.mkdir(parents=True, exist_ok=True)
-
-        await create_symlink_base(target=bin_desktop_dir, dest=home_desktop_dir)
+        await proc.wait()
