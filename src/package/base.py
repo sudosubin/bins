@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from aiopath import AsyncPath
 from anyio import AsyncFile
@@ -14,8 +14,8 @@ from source.base import BasePackageSource
 from utils.archive import unarchive_file
 from utils.configs import INSTALL_DIR
 from utils.formatters import format_download_filename
-from utils.glob import create_symlink
 from utils.request import request
+from utils.symlink import create_symlink
 
 
 class Package(object):
@@ -30,6 +30,7 @@ class Package(object):
         source: Package source type
 
         link_pattern: Link from unarhived outputs to specific paths
+
         asset_pattern: Asset searching from release, regex pattern (github release)
 
         _lock: Package lock instance
@@ -44,6 +45,7 @@ class Package(object):
     source: PackageSource = PackageSource.NONE
 
     link_pattern: Dict[str, str] = {}
+
     asset_pattern: Optional[str] = None
 
     _lock: PackageLock
@@ -136,14 +138,14 @@ class Package(object):
 
             # Extract and install with glob pattern
             await unarchive_file(download_file_dir, self.package_out_dir)
-            # TODO(sudosubin): Remove previous installed symlinks
-            symlink_paths = await create_symlink(self.package_out_dir, self.bin_patterns, self.bin_name)
+            # TODO(sudosubin): Remove previous installed symlinks, read from lock file
+            await create_symlink(self.package_out_dir, self.link_pattern)
 
             # Postinstall hook
             await self.postinstall()
 
             # Write lock
-            await self._lock.write(version=next_version, bins=symlink_paths)
+            await self._lock.write(version=next_version, files=tuple(self.link_pattern.values()))
 
             dynamic.update_heading(_get_heading(finish=True))
 

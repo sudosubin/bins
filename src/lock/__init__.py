@@ -14,7 +14,7 @@ class PackageLock(object):
 
     Attributes:
         package_name: Package's name
-        lock_content: Lock file's content (key: name, version, bins, ...)
+        lock_content: Lock file's content (key: name, version, files, ...)
     """
 
     package_name: str
