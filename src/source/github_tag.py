@@ -27,6 +27,7 @@ class GitHubTagPackageSource(BasePackageSource):
 
         endpoint = f'https://api.github.com/repos/{self.package.repo}/tags'
         data: List[Dict] = await request.get(endpoint, headers=self._get_headers())
+        data = [item for item in data if semantic_release(item['name'])[0].isdigit()]
 
         # Search for latest
         if self.package.version is None:
